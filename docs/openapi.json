@@ -1,0 +1,379 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Subscription Aggregation Service",
+    "description": "REST-сервис для агрегации данных об онлайн-подписках пользователей.\nТестовое задание для Junior Golang Developer в Effective Mobile.\n",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Subscriptions",
+      "description": "Operations related to user subscriptions"
+    },
+    {
+      "name": "Billing",
+      "description": "Operations related to cost calculation"
+    }
+  ],
+  "paths": {
+    "/subscriptions": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "List all subscriptions",
+        "description": "Retrieves a list of all subscription records.",
+        "responses": {
+          "200": {
+            "description": "A list of subscriptions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Subscription"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Create a new subscription",
+        "description": "Adds a new subscription record to the system.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Subscription created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscription_id}": {
+      "parameters": [
+        {
+          "name": "subscription_id",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the subscription to retrieve.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Get a subscription by ID",
+        "description": "Retrieves a single subscription record by its unique ID.",
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of subscription.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Subscription not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Update a subscription",
+        "description": "Updates an existing subscription record.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Subscription updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Subscription not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Delete a subscription",
+        "description": "Deletes a subscription record by its ID.",
+        "responses": {
+          "204": {
+            "description": "Subscription deleted successfully."
+          },
+          "404": {
+            "description": "Subscription not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/billing/total": {
+      "get": {
+        "tags": [
+          "Billing"
+        ],
+        "summary": "Calculate total subscription cost",
+        "description": "Calculates the total cost of subscriptions for a given user over a specified period.",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "description": "ID of the user to calculate the total cost for.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "description": "The start date for the calculation period (format MM-YYYY).",
+            "schema": {
+              "type": "string",
+              "example": "01-2024"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": true,
+            "description": "The end date for the calculation period (format MM-YYYY).",
+            "schema": {
+              "type": "string",
+              "example": "12-2024"
+            }
+          },
+          {
+            "name": "service_name",
+            "in": "query",
+            "required": true,
+            "description": "Filter by service name.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Total cost calculated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotalCost"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parameters provided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Subscription": {
+        "type": "object",
+        "properties": {
+          "subscription_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the subscription record.",
+            "readOnly": true
+          },
+          "service_name": {
+            "type": "string",
+            "example": "Yandex Plus"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Monthly subscription cost in rubles.",
+            "example": 400
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "60601fee-2bf1-4721-ae6f-7636e79a0cba"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Subscription start date (MM-YYYY).",
+            "example": "07-2025"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "Optional subscription end date (MM-YYYY).",
+            "example": "08-2026"
+          }
+        }
+      },
+      "SubscriptionInput": {
+        "type": "object",
+        "required": [
+          "service_name",
+          "price",
+          "user_id",
+          "start_date"
+        ],
+        "properties": {
+          "service_name": {
+            "type": "string",
+            "example": "Yandex Plus"
+          },
+          "price": {
+            "type": "integer",
+            "description": "Monthly subscription cost in rubles.",
+            "example": 400
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "60601fee-2bf1-4721-ae6f-7636e79a0cba"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Subscription start date (MM-YYYY).",
+            "example": "07-2025"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "Optional subscription end date (MM-YYYY).",
+            "example": "08-2026"
+          }
+        }
+      },
+      "TotalCost": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "total": {
+            "type": "integer",
+            "description": "The total calculated cost in rubles."
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
