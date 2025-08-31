@@ -2,15 +2,13 @@ package main
 
 import (
 	"context"
-	"log/slog"
-	"os"
+	"log"
 
 	"github.com/kandreydev/effective-mobile/internal/app"
 )
 
 func main() {
 	if err := app.Run(context.Background()); err != nil {
-		slog.Error("failed to run application", slog.String("error", err.Error()))
-		os.Exit(1)
+		log.Fatalf("failed to run application: %v", err)
 	}
 }

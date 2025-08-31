@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/pkg/errors"
+	"log"
 	"github.com/spf13/viper"
 )
 
@@ -14,12 +14,12 @@ type Config struct {
 	DBSSLMode  string
 }
 
-func Load() (*Config, error) {
+func MustLoad() (*Config) {
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, errors.Wrap(err, "no .env file found")
+		log.Fatalf("failed to read config: %v", err)
 	}
 
 	cfg := &Config{
@@ -31,5 +31,5 @@ func Load() (*Config, error) {
 		DBSSLMode:  viper.GetString("DB_SSLMODE"),
 	}
 
-	return cfg, nil
+	return cfg
 }
