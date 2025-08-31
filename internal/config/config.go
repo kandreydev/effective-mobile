@@ -1,10 +1,13 @@
 package config
 
 import (
+	"fmt"
 	"log"
+
 	"github.com/spf13/viper"
 )
 
+// TODO: add config for logging.
 type Config struct {
 	DBHost     string
 	DBPort     string
@@ -14,7 +17,7 @@ type Config struct {
 	DBSSLMode  string
 }
 
-func MustLoad() (*Config) {
+func MustLoad() *Config {
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
 
@@ -32,4 +35,9 @@ func MustLoad() (*Config) {
 	}
 
 	return cfg
+}
+
+func (cfg *Config) DSN() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.DBUser, cfg.DBPassword, cfg.DBHost, cfg.DBPort, cfg.DBName, cfg.DBSSLMode)
 }

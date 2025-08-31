@@ -2,7 +2,7 @@ package models
 
 // Subscription represents a user's subscription record as it exists in the system.
 type Subscription struct {
-	SubscriptionID string `json:"subscription_id"`
+	SubscriptionID string `json:"id"`
 	ServiceName    string `json:"service_name"`
 	Price          int    `json:"price"`
 	UserID         string `json:"user_id"`
