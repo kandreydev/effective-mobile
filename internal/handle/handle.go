@@ -39,9 +39,6 @@ func (h *Handle) ListSubscriptions(c *gin.Context) {
 }
 
 func (h *Handle) CreateSubscription(c *gin.Context) {
-	// here is problem:
-	// input.Price is integer
-	// you should convert StartDate and EndDate to format "MM-YYYY"
 	var input models.SubscriptionInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		h.log.Error("failed to bind JSON", slog.String("error", err.Error()))
@@ -73,8 +70,22 @@ func (h *Handle) CreateSubscription(c *gin.Context) {
 }
 
 func (h *Handle) GetSubscription(c *gin.Context) {
-	h.log.Error("GetSubscription not implemented")
-	c.JSON(http.StatusNotImplemented, gin.H{"error": "not implemented"})
+	id := c.Param("id")
+
+	subscription, err := h.repo.GetSubscription(c.Request.Context(), id)
+	if err != nil {
+		h.log.Error("failed to get subscription", slog.String("error", err.Error()))
+		Error := models.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "failed to get subscription",
+		}
+		c.JSON(http.StatusInternalServerError, Error)
+
+		return
+	}
+
+	h.log.Info("got subscription", slog.String("id", subscription.ID))
+	c.JSON(http.StatusOK, subscription)
 }
 
 func (h *Handle) UpdateSubscription(c *gin.Context) {
