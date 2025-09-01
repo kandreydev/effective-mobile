@@ -64,7 +64,15 @@ func (r *SubscriptionsRepo) GetSubscription(ctx context.Context, id string) (*mo
 		&sub.ID, &sub.ServiceName, &sub.Price, &sub.UserID, &sub.StartDate, &sub.EndDate,
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get subscription")
+		return nil, errors.Wrap(err, "failed to get subscription from storagr")
+	}
+
+	if sub.StartDate != nil {
+		sub.StartDateString = sub.StartDate.Format("01-2006")
+	}
+
+	if sub.EndDate != nil {
+		sub.EndDateString = sub.EndDate.Format("01-2006")
 	}
 
 	return &sub, nil
@@ -78,7 +86,7 @@ func (r *SubscriptionsRepo) CreateSubscription(ctx context.Context, input models
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, service_name, price, user_id, start_date, end_date
 	`
-	// simplify
+
 	startDate, err := time.Parse("01-2006", input.StartDateString)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse start date")
