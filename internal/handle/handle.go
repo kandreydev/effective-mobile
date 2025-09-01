@@ -5,24 +5,35 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kandreydev/effective-mobile/internal/models"
 	"github.com/kandreydev/effective-mobile/internal/repository"
 )
 
 type Handle struct {
-	subscriptionsRepo repository.SubscriptionsProvider
+	repo repository.SubscriptionsProvider
 	log               slog.Logger
 }
 
-func New(subscriptionsRepo repository.SubscriptionsProvider, log *slog.Logger) *Handle {
+func New(repo repository.SubscriptionsProvider, log *slog.Logger) *Handle {
 	return &Handle{
-		subscriptionsRepo: subscriptionsRepo,
+		repo: repo,
 		log:               *log,
 	}
 }
 
 func (h *Handle) ListSubscriptions(c *gin.Context) {
-	h.log.Error("ListSubscriptions not implemented")
-	c.JSON(http.StatusNotImplemented, gin.H{"error": "not implemented"})
+	subscriptions, err := h.repo.ListSubscription(c.Request.Context())
+	if err != nil {
+		h.log.Error("failed to list subscriptions", slog.String("error", err.Error()))
+		Error := models.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "failed to list subscriptions",
+		}
+		c.JSON(http.StatusInternalServerError, Error)
+		return
+	}
+	h.log.Info("got list")
+	c.JSON(http.StatusOK, subscriptions)
 }
 
 func (h *Handle) CreateSubscription(c *gin.Context) {
