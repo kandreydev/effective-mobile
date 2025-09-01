@@ -61,11 +61,12 @@ func Run(ctx context.Context) error {
 	}
 	// GET PORT via flag
 	var port string
+
 	flag.StringVar(&port, "port", "8080", "port for server")
 	flag.Parse()
 	log.Info("starting server", "port", port)
 
-	// START SERVER 
+	// START SERVER
 	// TODO :stick to Graceful Shutdown pattern
 
 	if err := router.Run(":" + port); err != nil {
