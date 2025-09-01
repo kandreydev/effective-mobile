@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kandreydev/effective-mobile/internal/models"
@@ -34,6 +35,14 @@ func (r *SubscriptionsRepo) ListSubscription(ctx context.Context) ([]models.Subs
 		err := rows.Scan(&subscription.ID, &subscription.ServiceName, &subscription.Price, &subscription.UserID, &subscription.StartDate, &subscription.EndDate)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan row in ListSubscription")
+		}
+
+		if subscription.StartDate != nil {
+			subscription.StartDateString = subscription.StartDate.Format("01-2006")
+		}
+
+		if subscription.EndDate != nil {
+			subscription.EndDateString = subscription.EndDate.Format("01-2006")
 		}
 
 		subscriptions = append(subscriptions, subscription)
@@ -69,8 +78,26 @@ func (r *SubscriptionsRepo) CreateSubscription(ctx context.Context, input models
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id, service_name, price, user_id, start_date, end_date
 	`
+	// simplify
+	startDate, err := time.Parse("01-2006", input.StartDateString)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse start date")
+	} else {
+		input.StartDate = &startDate
+	}
 
-	err := r.pool.QueryRow(ctx, query,
+	if input.EndDateString == "" {
+		input.EndDate = nil
+	} else {
+		endDate, err := time.Parse("01-2006", input.EndDateString)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse end date")
+		} else {
+			input.EndDate = &endDate
+		}
+	}
+
+	err = r.pool.QueryRow(ctx, query,
 		input.ServiceName,
 		input.Price,
 		input.UserID,
@@ -79,6 +106,14 @@ func (r *SubscriptionsRepo) CreateSubscription(ctx context.Context, input models
 	).Scan(&sub.ID, &sub.ServiceName, &sub.Price, &sub.UserID, &sub.StartDate, &sub.EndDate)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create subscription")
+	}
+
+	if sub.StartDate != nil {
+		sub.StartDateString = sub.StartDate.Format("01-2006")
+	}
+
+	if sub.EndDate != nil {
+		sub.EndDateString = sub.EndDate.Format("01-2006")
 	}
 
 	return &sub, nil

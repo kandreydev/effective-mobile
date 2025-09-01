@@ -5,7 +5,7 @@ import (
 	"embed"
 	"log/slog"
 
-	// Import pgx driver for database/sql compatibility
+	// Import pgx driver for database/sql compatibility.
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pkg/errors"
 	"github.com/pressly/goose/v3"
