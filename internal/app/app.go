@@ -59,14 +59,14 @@ func Run(ctx context.Context) error {
 
 		api.GET("/billing/total", h.CalculateTotalCost)
 	}
-
-	// START SERVER
-	// TODO: stick to Graceful Shutdown pattern
+	// GET PORT via flag
 	var port string
-
 	flag.StringVar(&port, "port", "8080", "port for server")
 	flag.Parse()
 	log.Info("starting server", "port", port)
+
+	// START SERVER 
+	// TODO :stick to Graceful Shutdown pattern
 
 	if err := router.Run(":" + port); err != nil {
 		log.Error("failed to start server", slog.String("error", err.Error()))
